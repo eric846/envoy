@@ -81,8 +81,8 @@ public:
   Filters::Common::RateLimit::MockClient* client_;
   NiceMock<Http::MockStreamDecoderFilterCallbacks> filter_callbacks_;
   Filters::Common::RateLimit::RequestCallbacks* request_callbacks_{};
-  Http::TestHeaderMapImpl request_headers_;
-  Http::TestHeaderMapImpl response_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_;
+  Http::TestResponseHeaderMapImpl response_headers_;
   Buffer::OwnedImpl data_;
   Buffer::OwnedImpl response_data_;
   NiceMock<Stats::MockIsolatedStatsStore> stats_store_;
@@ -268,7 +268,7 @@ TEST_F(HttpRateLimitFilterTest, OkResponseWithHeaders) {
       Http::HeaderMapPtr{new Http::TestHeaderMapImpl(*rl_headers)},
       Http::HeaderMapPtr{new Http::TestHeaderMapImpl(*request_headers_to_add)});
   Http::TestHeaderMapImpl expected_headers(*rl_headers);
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(response_headers, false));
   EXPECT_EQ(true, (expected_headers == response_headers));
 
@@ -414,7 +414,7 @@ TEST_F(HttpRateLimitFilterTest, LimitResponse) {
             filter_->decodeHeaders(request_headers_, false));
 
   Http::HeaderMapPtr h{new Http::TestHeaderMapImpl()};
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "429"},
       {"x-envoy-ratelimited", Http::Headers::get().EnvoyRateLimitedValues.True}};
   EXPECT_CALL(filter_callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
@@ -601,7 +601,7 @@ TEST_F(HttpRateLimitFilterTest, IncorrectRequestType) {
   }
   )EOF";
   SetUpTest(external_filter_config);
-  Http::TestHeaderMapImpl request_headers{{"x-envoy-internal", "true"}};
+  Http::TestRequestHeaderMapImpl request_headers{{"x-envoy-internal", "true"}};
 
   EXPECT_CALL(route_rate_limit_, populateDescriptors(_, _, _, _, _)).Times(0);
   EXPECT_CALL(vh_rate_limit_, populateDescriptors(_, _, _, _, _)).Times(0);
@@ -624,7 +624,7 @@ TEST_F(HttpRateLimitFilterTest, InternalRequestType) {
   }
   )EOF";
   SetUpTest(internal_filter_config);
-  Http::TestHeaderMapImpl request_headers{{"x-envoy-internal", "true"}};
+  Http::TestRequestHeaderMapImpl request_headers{{"x-envoy-internal", "true"}};
   InSequence s;
 
   EXPECT_CALL(filter_callbacks_.route_->route_entry_.rate_limit_policy_, getApplicableRateLimit(0))
@@ -668,7 +668,7 @@ TEST_F(HttpRateLimitFilterTest, ExternalRequestType) {
   }
   )EOF";
   SetUpTest(external_filter_config);
-  Http::TestHeaderMapImpl request_headers{{"x-envoy-internal", "false"}};
+  Http::TestRequestHeaderMapImpl request_headers{{"x-envoy-internal", "false"}};
   InSequence s;
 
   EXPECT_CALL(filter_callbacks_.route_->route_entry_.rate_limit_policy_, getApplicableRateLimit(0))

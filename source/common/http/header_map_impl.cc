@@ -309,19 +309,6 @@ uint64_t HeaderMapImpl::appendToHeader(HeaderString& header, absl::string_view d
 
 HeaderMapImpl::HeaderMapImpl() { inline_headers_.clear(); }
 
-HeaderMapImplPtr HeaderMapImpl::create(
-    const std::initializer_list<std::pair<LowerCaseString, std::string>>& values) {
-  auto new_header_map = std::make_unique<HeaderMapImpl>();
-  initFromInitList(*new_header_map, values);
-  return new_header_map;
-}
-
-HeaderMapImplPtr HeaderMapImpl::create(const HeaderMap& rhs) {
-  auto new_header_map = std::make_unique<HeaderMapImpl>();
-  copyFrom(*new_header_map, rhs);
-  return new_header_map;
-}
-
 void HeaderMapImpl::initFromInitList(
     HeaderMapImpl& new_header_map,
     const std::initializer_list<std::pair<LowerCaseString, std::string>>& values) {

@@ -78,12 +78,12 @@ void Http2UpstreamIntegrationTest::bidirectionalStreaming(uint32_t bytes) {
   ASSERT_TRUE(upstream_request_->waitForData(*dispatcher_, bytes));
 
   // Start sending the response and ensure it is received downstream.
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request_->encodeData(bytes, false);
   response->waitForBodyData(bytes);
 
   // Finish the request.
-  codec_client_->sendTrailers(*request_encoder_, Http::TestHeaderMapImpl{{"trailer", "foo"}});
+  codec_client_->sendTrailers(*request_encoder_, Http::TestRequestTrailerMapImpl{{"trailer", "foo"}});
   ASSERT_TRUE(upstream_request_->waitForEndStream(*dispatcher_));
 
   // Finish the response.
@@ -119,12 +119,12 @@ TEST_P(Http2UpstreamIntegrationTest, BidirectionalStreamingReset) {
   ASSERT_TRUE(upstream_request_->waitForData(*dispatcher_, 1024));
 
   // Start sending the response.
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request_->encodeData(1024, false);
   response->waitForBodyData(1024);
 
   // Finish sending the request.
-  codec_client_->sendTrailers(*request_encoder_, Http::TestHeaderMapImpl{{"trailer", "foo"}});
+  codec_client_->sendTrailers(*request_encoder_, Http::TestRequestTrailerMapImpl{{"trailer", "foo"}});
   ASSERT_TRUE(upstream_request_->waitForEndStream(*dispatcher_));
 
   // Reset the stream.
@@ -172,7 +172,7 @@ void Http2UpstreamIntegrationTest::simultaneousRequest(uint32_t request1_bytes,
   ASSERT_TRUE(upstream_request2->waitForEndStream(*dispatcher_));
 
   // Respond to request 2
-  upstream_request2->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request2->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request2->encodeData(response2_bytes, true);
   response2->waitForEndStream();
   EXPECT_TRUE(upstream_request2->complete());
@@ -182,7 +182,7 @@ void Http2UpstreamIntegrationTest::simultaneousRequest(uint32_t request1_bytes,
   EXPECT_EQ(response2_bytes, response2->body().size());
 
   // Respond to request 1
-  upstream_request1->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request1->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request1->encodeData(response1_bytes, true);
   response1->waitForEndStream();
   EXPECT_TRUE(upstream_request1->complete());
@@ -305,7 +305,7 @@ TEST_P(Http2UpstreamIntegrationTest, UpstreamConnectionCloseWithManyStreams) {
   }
   for (uint32_t i = 1; i < num_requests; ++i) {
     ASSERT_TRUE(upstream_requests[i]->waitForEndStream(*dispatcher_));
-    upstream_requests[i]->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+    upstream_requests[i]->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
     upstream_requests[i]->encodeData(100, false);
   }
   // Close the connection.
@@ -406,7 +406,7 @@ TEST_P(Http2UpstreamIntegrationTest, ManyResponseHeadersAccepted) {
     auto* http_protocol_options = cluster->mutable_common_http_protocol_options();
     http_protocol_options->mutable_max_headers_count()->set_value(200);
   });
-  Http::TestHeaderMapImpl response_headers(default_response_headers_);
+  Http::TestResponseHeaderMapImpl response_headers(default_response_headers_);
   for (int i = 0; i < 150; i++) {
     response_headers.addCopy(std::to_string(i), std::string(1, 'a'));
   }

@@ -174,7 +174,7 @@ typed_config:
 
   initializeFilter(FILTER_AND_CODE);
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "POST"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "POST"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -218,7 +218,7 @@ typed_config:
                        ->value()
                        .getStringView());
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}, {"foo", "bar"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}, {"foo", "bar"}};
   upstream_request_->encodeHeaders(response_headers, false);
   Buffer::OwnedImpl response_data1("good");
   upstream_request_->encodeData(response_data1, false);
@@ -274,7 +274,7 @@ typed_config:
   initializeFilter(FILTER_AND_CODE);
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -284,7 +284,7 @@ typed_config:
   ASSERT_TRUE(fake_upstreams_[1]->waitForHttpConnection(*dispatcher_, fake_lua_connection_));
   ASSERT_TRUE(fake_lua_connection_->waitForNewStream(*dispatcher_, lua_request_));
   ASSERT_TRUE(lua_request_->waitForEndStream(*dispatcher_));
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}, {"foo", "bar"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}, {"foo", "bar"}};
   lua_request_->encodeHeaders(response_headers, false);
   Buffer::OwnedImpl response_data1("good");
   lua_request_->encodeData(response_data1, true);
@@ -334,7 +334,7 @@ typed_config:
   initializeFilter(FILTER_AND_CODE);
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -344,7 +344,7 @@ typed_config:
   ASSERT_TRUE(fake_upstreams_[1]->waitForHttpConnection(*dispatcher_, fake_lua_connection_));
   ASSERT_TRUE(fake_lua_connection_->waitForNewStream(*dispatcher_, lua_request_));
   ASSERT_TRUE(lua_request_->waitForEndStream(*dispatcher_));
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}, {"foo", "bar"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}, {"foo", "bar"}};
   lua_request_->encodeHeaders(response_headers, true);
 
   response->waitForEndStream();
@@ -372,7 +372,7 @@ typed_config:
   initializeFilter(FILTER_AND_CODE);
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -405,7 +405,7 @@ typed_config:
   initializeFilter(FILTER_AND_CODE);
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -497,7 +497,7 @@ typed_config:
       "295234f7c14fa46303b7e977d2c89ba8a39a46a35f33eb07a332";
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{
+  Http::TestRequestHeaderMapImpl request_headers{
       {":method", "POST"},    {":path", "/test/long/url"},     {":scheme", "https"},
       {":authority", "host"}, {"x-forwarded-for", "10.0.0.1"}, {"message", "hello"},
       {"keyid", "foo"},       {"signature", signature},        {"hash", "sha256"}};

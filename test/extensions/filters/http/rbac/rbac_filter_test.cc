@@ -86,7 +86,7 @@ public:
   RoleBasedAccessControlFilter filter_;
   Network::Address::InstanceConstSharedPtr address_;
   std::string requested_server_name_;
-  Http::TestHeaderMapImpl headers_;
+  Http::TestRequestHeaderMapImpl headers_;
 };
 
 TEST_F(RoleBasedAccessControlFilterTest, Allowed) {
@@ -121,7 +121,7 @@ TEST_F(RoleBasedAccessControlFilterTest, RequestedServerName) {
 TEST_F(RoleBasedAccessControlFilterTest, Path) {
   setDestinationPort(999);
 
-  auto headers = Http::TestHeaderMapImpl{
+  auto headers = Http::TestRequestHeaderMapImpl{
       {":method", "GET"},
       {":path", "/suffix#seg?param=value"},
       {":scheme", "http"},
@@ -134,7 +134,7 @@ TEST_F(RoleBasedAccessControlFilterTest, Denied) {
   setDestinationPort(456);
   setMetadata();
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "403"},
       {"content-length", "19"},
       {"content-type", "text/plain"},

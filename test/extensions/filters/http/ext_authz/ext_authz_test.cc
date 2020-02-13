@@ -73,7 +73,7 @@ public:
   std::unique_ptr<Filter> filter_;
   NiceMock<Http::MockStreamDecoderFilterCallbacks> filter_callbacks_;
   Filters::Common::ExtAuthz::RequestCallbacks* request_callbacks_;
-  Http::TestHeaderMapImpl request_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_;
   Buffer::OwnedImpl data_;
   NiceMock<Runtime::MockLoader> runtime_;
   NiceMock<Upstream::MockClusterManager> cm_;
@@ -1139,7 +1139,7 @@ TEST_F(HttpFilterTestParam, DeniedResponseWith401) {
   EXPECT_EQ(Http::FilterHeadersStatus::StopAllIterationAndWatermark,
             filter_->decodeHeaders(request_headers_, false));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "401"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "401"}};
   EXPECT_CALL(filter_callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   EXPECT_CALL(filter_callbacks_, continueDecoding()).Times(0);
   EXPECT_CALL(filter_callbacks_.stream_info_,
@@ -1167,7 +1167,7 @@ TEST_F(HttpFilterTestParam, DeniedResponseWith403) {
   EXPECT_EQ(Http::FilterHeadersStatus::StopAllIterationAndWatermark,
             filter_->decodeHeaders(request_headers_, false));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "403"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "403"}};
   EXPECT_CALL(filter_callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   EXPECT_CALL(filter_callbacks_, continueDecoding()).Times(0);
   EXPECT_CALL(filter_callbacks_.stream_info_,
@@ -1205,7 +1205,7 @@ TEST_F(HttpFilterTestParam, DestroyResponseBeforeSendLocalReply) {
   EXPECT_EQ(Http::FilterHeadersStatus::StopAllIterationAndWatermark,
             filter_->decodeHeaders(request_headers_, false));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "403"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "403"},
                                            {"content-length", "3"},
                                            {"content-type", "text/plain"},
                                            {"foo", "bar"},
@@ -1258,7 +1258,7 @@ TEST_F(HttpFilterTestParam, OverrideEncodingHeaders) {
   EXPECT_EQ(Http::FilterHeadersStatus::StopAllIterationAndWatermark,
             filter_->decodeHeaders(request_headers_, false));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "403"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "403"},
                                            {"content-length", "3"},
                                            {"content-type", "text/plain"},
                                            {"foo", "bar"},

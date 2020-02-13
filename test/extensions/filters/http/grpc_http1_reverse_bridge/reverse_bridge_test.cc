@@ -53,7 +53,7 @@ TEST_F(ReverseBridgeTest, InvalidGrpcRequest) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+    Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                      {"content-length", "25"},
                                      {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
@@ -86,7 +86,7 @@ TEST_F(ReverseBridgeTest, HeaderOnlyGrpcRequest) {
   decoder_callbacks_.is_grpc_request_ = true;
 
   {
-    Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+    Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                      {"content-length", "25"},
                                      {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, true));
@@ -97,7 +97,7 @@ TEST_F(ReverseBridgeTest, HeaderOnlyGrpcRequest) {
   }
 
   // Verify no modification on encoding path as well.
-  Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"}, {"content-length", "20"}});
+  Http::TestResponseHeaderMapImpl headers({{"content-type", "application/grpc"}, {"content-length", "20"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, true));
   // Ensure we didn't mutate content type or length.
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
@@ -116,7 +116,7 @@ TEST_F(ReverseBridgeTest, NoGrpcRequest) {
 
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
-    Http::TestHeaderMapImpl headers(
+    Http::TestRequestHeaderMapImpl headers(
         {{"content-type", "application/json"}, {"content-length", "10"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
     // Ensure we didn't mutate content type or length.
@@ -131,11 +131,11 @@ TEST_F(ReverseBridgeTest, NoGrpcRequest) {
     EXPECT_EQ(4, buffer.length());
   }
 
-  Http::TestHeaderMapImpl trailers;
+  Http::TestRequestTrailerMapImpl trailers;
   EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
 
   {
-    Http::TestHeaderMapImpl headers(
+    Http::TestRequestHeaderMapImpl headers(
         {{"content-type", "application/json"}, {"content-length", "20"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
     // Ensure we didn't mutate content type or length.
@@ -149,7 +149,7 @@ TEST_F(ReverseBridgeTest, NoGrpcRequest) {
   EXPECT_EQ(4, buffer.length());
 
   // Verify no modification on encoding path as well.
-  Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"}, {"content-length", "20"}});
+  Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"}, {"content-length", "20"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, true));
   // Ensure we didn't mutate content type or length.
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
@@ -165,7 +165,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestNoManageFrameHeader) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+    Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                      {"content-length", "25"},
                                      {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
@@ -184,12 +184,12 @@ TEST_F(ReverseBridgeTest, GrpcRequestNoManageFrameHeader) {
   }
 
   {
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
   }
 
   // We should not modify the content-length.
-  Http::TestHeaderMapImpl headers(
+  Http::TestRequestHeaderMapImpl headers(
       {{":status", "200"}, {"content-length", "30"}, {"content-type", "application/x-protobuf"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
@@ -205,7 +205,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestNoManageFrameHeader) {
 
   {
     // Last call should also not modify the buffer.
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_CALL(encoder_callbacks_, addEncodedTrailers()).WillOnce(ReturnRef(trailers));
 
     Envoy::Buffer::OwnedImpl buffer;
@@ -225,7 +225,7 @@ TEST_F(ReverseBridgeTest, GrpcRequest) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+    Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                      {"content-length", "25"},
                                      {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
@@ -252,11 +252,11 @@ TEST_F(ReverseBridgeTest, GrpcRequest) {
   }
 
   {
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
   }
 
-  Http::TestHeaderMapImpl headers(
+  Http::TestRequestHeaderMapImpl headers(
       {{":status", "200"}, {"content-length", "30"}, {"content-type", "application/x-protobuf"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
@@ -278,7 +278,7 @@ TEST_F(ReverseBridgeTest, GrpcRequest) {
   }
   {
     // Last call should prefix the buffer with the size and insert the gRPC status into trailers.
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_CALL(encoder_callbacks_, addEncodedTrailers()).WillOnce(ReturnRef(trailers));
 
     Envoy::Buffer::OwnedImpl buffer;
@@ -306,7 +306,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestNoContentLength) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers(
+    Http::TestRequestHeaderMapImpl headers(
         {{"content-type", "application/grpc"}, {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
 
@@ -333,11 +333,11 @@ TEST_F(ReverseBridgeTest, GrpcRequestNoContentLength) {
   }
 
   {
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
   }
 
-  Http::TestHeaderMapImpl headers({{":status", "200"}, {"content-type", "application/x-protobuf"}});
+  Http::TestRequestHeaderMapImpl headers({{":status", "200"}, {"content-type", "application/x-protobuf"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
   // Ensure that we don't insert a content-length header.
@@ -359,7 +359,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestNoContentLength) {
   }
   {
     // Last call should prefix the buffer with the size and insert the gRPC status into trailers.
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_CALL(encoder_callbacks_, addEncodedTrailers()).WillOnce(ReturnRef(trailers));
 
     Envoy::Buffer::OwnedImpl buffer;
@@ -386,7 +386,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestInternalError) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers(
+    Http::TestRequestHeaderMapImpl headers(
         {{"content-type", "application/grpc"}, {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
     EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/x-protobuf"));
@@ -410,11 +410,11 @@ TEST_F(ReverseBridgeTest, GrpcRequestInternalError) {
   }
 
   {
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
   }
 
-  Http::TestHeaderMapImpl headers({{":status", "400"}, {"content-type", "application/x-protobuf"}});
+  Http::TestRequestHeaderMapImpl headers({{":status", "400"}, {"content-type", "application/x-protobuf"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
 
@@ -434,7 +434,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestInternalError) {
   }
   {
     // Last call should prefix the buffer with the size and insert the appropriate gRPC status.
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_CALL(encoder_callbacks_, addEncodedTrailers()).WillOnce(ReturnRef(trailers));
 
     Envoy::Buffer::OwnedImpl buffer;
@@ -460,7 +460,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestBadResponseNoContentType) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers(
+    Http::TestRequestHeaderMapImpl headers(
         {{"content-type", "application/grpc"}, {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
     EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/x-protobuf"));
@@ -486,10 +486,10 @@ TEST_F(ReverseBridgeTest, GrpcRequestBadResponseNoContentType) {
     EXPECT_EQ("abcdefgh", buffer.toString());
   }
 
-  Http::TestHeaderMapImpl trailers;
+  Http::TestRequestTrailerMapImpl trailers;
   EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
 
-  Http::TestHeaderMapImpl headers({{":status", "400"}});
+  Http::TestRequestHeaderMapImpl headers({{":status", "400"}});
   EXPECT_EQ(Http::FilterHeadersStatus::ContinueAndEndStream,
             filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().Status, "200"));
@@ -510,7 +510,7 @@ TEST_F(ReverseBridgeTest, GrpcRequestBadResponse) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers(
+    Http::TestRequestHeaderMapImpl headers(
         {{"content-type", "application/grpc"}, {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
     EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/x-protobuf"));
@@ -536,10 +536,10 @@ TEST_F(ReverseBridgeTest, GrpcRequestBadResponse) {
     EXPECT_EQ("abcdefgh", buffer.toString());
   }
 
-  Http::TestHeaderMapImpl trailers;
+  Http::TestRequestTrailerMapImpl trailers;
   EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
 
-  Http::TestHeaderMapImpl headers({{":status", "400"}, {"content-type", "application/json"}});
+  Http::TestRequestHeaderMapImpl headers({{":status", "400"}, {"content-type", "application/json"}});
   EXPECT_EQ(Http::FilterHeadersStatus::ContinueAndEndStream,
             filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().Status, "200"));
@@ -566,7 +566,7 @@ TEST_F(ReverseBridgeTest, FilterConfigPerRouteDisabled) {
 
   EXPECT_CALL(decoder_callbacks_, route()).Times(2);
 
-  Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+  Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                    {"content-length", "25"},
                                    {":path", "/testing.ExampleService/SendData"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
@@ -596,7 +596,7 @@ TEST_F(ReverseBridgeTest, FilterConfigPerRouteEnabled) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).Times(2);
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+    Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                      {"content-length", "25"},
                                      {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
@@ -623,11 +623,11 @@ TEST_F(ReverseBridgeTest, FilterConfigPerRouteEnabled) {
   }
 
   {
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
   }
 
-  Http::TestHeaderMapImpl headers(
+  Http::TestRequestHeaderMapImpl headers(
       {{":status", "200"}, {"content-length", "30"}, {"content-type", "application/x-protobuf"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));
@@ -649,7 +649,7 @@ TEST_F(ReverseBridgeTest, FilterConfigPerRouteEnabled) {
   }
   {
     // Last call should prefix the buffer with the size and insert the gRPC status into trailers.
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_CALL(encoder_callbacks_, addEncodedTrailers()).WillOnce(ReturnRef(trailers));
 
     Envoy::Buffer::OwnedImpl buffer;
@@ -683,7 +683,7 @@ TEST_F(ReverseBridgeTest, RouteWithTrailers) {
   {
     EXPECT_CALL(decoder_callbacks_, route()).Times(2);
     EXPECT_CALL(decoder_callbacks_, clearRouteCache());
-    Http::TestHeaderMapImpl headers({{"content-type", "application/grpc"},
+    Http::TestRequestHeaderMapImpl headers({{"content-type", "application/grpc"},
                                      {"content-length", "25"},
                                      {":path", "/testing.ExampleService/SendData"}});
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
@@ -701,11 +701,11 @@ TEST_F(ReverseBridgeTest, RouteWithTrailers) {
   }
 
   {
-    Http::TestHeaderMapImpl trailers;
+    Http::TestRequestTrailerMapImpl trailers;
     EXPECT_EQ(Http::FilterTrailersStatus::Continue, filter_->decodeTrailers(trailers));
   }
 
-  Http::TestHeaderMapImpl headers(
+  Http::TestRequestHeaderMapImpl headers(
       {{":status", "200"}, {"content-length", "30"}, {"content-type", "application/x-protobuf"}});
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(headers, false));
   EXPECT_THAT(headers, HeaderValueOf(Http::Headers::get().ContentType, "application/grpc"));

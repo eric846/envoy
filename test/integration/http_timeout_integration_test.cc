@@ -179,7 +179,7 @@ TEST_P(HttpTimeoutIntegrationTest, GlobalTimeoutAfterHeadersBeforeBodyResetsUpst
   initialize();
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "POST"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "POST"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -198,7 +198,7 @@ TEST_P(HttpTimeoutIntegrationTest, GlobalTimeoutAfterHeadersBeforeBodyResetsUpst
   ASSERT_TRUE(upstream_request_->waitForEndStream(*dispatcher_));
 
   // Respond with headers, not end of stream.
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
   upstream_request_->encodeHeaders(response_headers, false);
 
   response->waitForHeaders();
@@ -306,7 +306,7 @@ TEST_P(HttpTimeoutIntegrationTest, HedgedPerTryTimeout) {
   ASSERT_TRUE(upstream_request2->waitForEndStream(*dispatcher_));
 
   // Encode 200 response headers for the first (timed out) request.
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
   upstream_request_->encodeHeaders(response_headers, true);
 
   response->waitForHeaders();
@@ -368,7 +368,7 @@ void HttpTimeoutIntegrationTest::testRouterRequestAndResponseWithHedgedPerTryTim
   initialize();
 
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "POST"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "POST"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},
@@ -402,7 +402,7 @@ void HttpTimeoutIntegrationTest::testRouterRequestAndResponseWithHedgedPerTryTim
   ASSERT_TRUE(upstream_request2->waitForHeadersComplete());
   ASSERT_TRUE(upstream_request2->waitForEndStream(*dispatcher_));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
   if (first_request_wins) {
     // Encode 200 response headers for the first (timed out) request.
     upstream_request_->encodeHeaders(response_headers, response_size == 0);

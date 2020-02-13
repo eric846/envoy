@@ -75,7 +75,7 @@ void IntegrationCodecClient::flushWrite() {
 }
 
 IntegrationStreamDecoderPtr
-IntegrationCodecClient::makeHeaderOnlyRequest(const Http::HeaderMap& headers) {
+IntegrationCodecClient::makeHeaderOnlyRequest(const Http::RequestHeaderMap& headers) {
   auto response = std::make_unique<IntegrationStreamDecoder>(dispatcher_);
   Http::RequestEncoder& encoder = newStream(*response);
   encoder.getStream().addCallbacks(*response);
@@ -85,12 +85,13 @@ IntegrationCodecClient::makeHeaderOnlyRequest(const Http::HeaderMap& headers) {
 }
 
 IntegrationStreamDecoderPtr
-IntegrationCodecClient::makeRequestWithBody(const Http::HeaderMap& headers, uint64_t body_size) {
+IntegrationCodecClient::makeRequestWithBody(const Http::RequestHeaderMap& headers,
+                                            uint64_t body_size) {
   return makeRequestWithBody(headers, std::string(body_size, 'a'));
 }
 
 IntegrationStreamDecoderPtr
-IntegrationCodecClient::makeRequestWithBody(const Http::HeaderMap& headers,
+IntegrationCodecClient::makeRequestWithBody(const Http::RequestHeaderMap& headers,
                                             const std::string& body) {
   auto response = std::make_unique<IntegrationStreamDecoder>(dispatcher_);
   Http::RequestEncoder& encoder = newStream(*response);
@@ -122,7 +123,7 @@ void IntegrationCodecClient::sendData(Http::RequestEncoder& encoder, uint64_t si
 }
 
 void IntegrationCodecClient::sendTrailers(Http::RequestEncoder& encoder,
-                                          const Http::HeaderMap& trailers) {
+                                          const Http::RequestTrailerMap& trailers) {
   encoder.encodeTrailers(trailers);
   flushWrite();
 }
@@ -415,7 +416,7 @@ void HttpIntegrationTest::testRouterRequestAndResponseWithBody(
   initialize();
   codec_client_ = makeHttpConnection(
       create_connection ? ((*create_connection)()) : makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{
+  Http::TestRequestHeaderMapImpl request_headers{
       {":method", "POST"},    {":path", "/test/long/url"}, {":scheme", "http"},
       {":authority", "host"}, {"x-lyft-user-id", "123"},   {"x-forwarded-for", "10.0.0.1"}};
   if (big_header) {
@@ -437,7 +438,7 @@ HttpIntegrationTest::makeHeaderOnlyRequest(ConnectionCreationFunction* create_co
   }
   codec_client_ = makeHttpConnection(
       create_connection ? ((*create_connection)()) : makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", path},
                                           {":scheme", "http"},
                                           {":authority", authority},
@@ -640,7 +641,7 @@ void HttpIntegrationTest::testRetry() {
                                                                  {"x-envoy-retry-on", "5xx"}},
                                          1024);
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "503"}}, false);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "503"}}, false);
 
   if (fake_upstreams_[0]->httpType() == FakeHttpConnection::Type::HTTP1) {
     ASSERT_TRUE(fake_upstream_connection_->waitForDisconnect());
@@ -679,7 +680,7 @@ void HttpIntegrationTest::testRetryAttemptCountHeader() {
                                                                  {"x-envoy-retry-on", "5xx"}},
                                          1024);
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "503"}}, false);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "503"}}, false);
 
   EXPECT_EQ(
       atoi(std::string(upstream_request_->headers().EnvoyAttemptCount()->value().getStringView())
@@ -725,7 +726,7 @@ void HttpIntegrationTest::testGrpcRetry() {
   codec_client_->sendData(*request_encoder_, 1024, true);
   waitForNextUpstreamRequest();
   upstream_request_->encodeHeaders(
-      Http::TestHeaderMapImpl{{":status", "200"}, {"grpc-status", "1"}}, false);
+      Http::TestResponseHeaderMapImpl{{":status", "200"}, {"grpc-status", "1"}}, false);
   if (fake_upstreams_[0]->httpType() == FakeHttpConnection::Type::HTTP1) {
     ASSERT_TRUE(fake_upstream_connection_->waitForDisconnect());
     ASSERT_TRUE(fake_upstreams_[0]->waitForHttpConnection(*dispatcher_, fake_upstream_connection_));
@@ -786,7 +787,8 @@ void HttpIntegrationTest::testEnvoyHandling100Continue(bool additional_continue_
   if (additional_continue_from_upstream) {
     // Make sure if upstream sends an 100-Continue Envoy doesn't send its own and proxy the one
     // from upstream!
-    upstream_request_->encode100ContinueHeaders(Http::TestHeaderMapImpl{{":status", "100"}});
+    upstream_request_->encode100ContinueHeaders(
+        Http::TestResponseHeaderMapImpl{{":status", "100"}});
   }
   upstream_request_->encodeHeaders(default_response_headers_, false);
   upstream_request_->encodeData(12, true);
@@ -844,7 +846,8 @@ void HttpIntegrationTest::testEnvoyProxying100Continue(bool continue_before_upst
   if (continue_before_upstream_complete) {
     // This case tests sending on 100-Continue headers before the client has sent all the
     // request data.
-    upstream_request_->encode100ContinueHeaders(Http::TestHeaderMapImpl{{":status", "100"}});
+    upstream_request_->encode100ContinueHeaders(
+        Http::TestResponseHeaderMapImpl{{":status", "100"}});
     response->waitForContinueHeaders();
   }
   // Send all of the request data and wait for it to be received upstream.
@@ -853,7 +856,8 @@ void HttpIntegrationTest::testEnvoyProxying100Continue(bool continue_before_upst
 
   if (!continue_before_upstream_complete) {
     // This case tests forwarding 100-Continue after the client has sent all data.
-    upstream_request_->encode100ContinueHeaders(Http::TestHeaderMapImpl{{":status", "100"}});
+    upstream_request_->encode100ContinueHeaders(
+        Http::TestResponseHeaderMapImpl{{":status", "100"}});
     response->waitForContinueHeaders();
   }
   // Now send the rest of the response.

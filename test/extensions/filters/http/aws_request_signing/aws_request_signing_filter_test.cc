@@ -14,8 +14,8 @@ namespace {
 
 class MockSigner : public Common::Aws::Signer {
 public:
-  MOCK_METHOD(void, sign, (Http::HeaderMap&));
-  MOCK_METHOD(void, sign, (Http::Message&, bool));
+  MOCK_METHOD(void, sign, (Http::RequestHeaderMap&));
+  MOCK_METHOD(void, sign, (Http::RequestMessage&, bool));
 };
 
 class MockFilterConfig : public FilterConfig {
@@ -46,7 +46,7 @@ TEST_F(AwsRequestSigningFilterTest, SignSucceeds) {
   setup();
   EXPECT_CALL(*(filter_config_->signer_), sign(_)).Times(1);
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
   EXPECT_EQ(1UL, filter_config_->stats_.signing_added_.value());
 }
@@ -58,7 +58,7 @@ TEST_F(AwsRequestSigningFilterTest, SignFails) {
     throw EnvoyException("failed");
   }));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, false));
   EXPECT_EQ(1UL, filter_config_->stats_.signing_failed_.value());
 }

@@ -86,7 +86,7 @@ TEST_P(RBACIntegrationTest, Allowed) {
       },
       1024);
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
   response->waitForEndStream();
   ASSERT_TRUE(response->complete());
@@ -132,7 +132,7 @@ TEST_P(RBACIntegrationTest, DeniedWithPrefixRule) {
       },
       1024);
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
   response->waitForEndStream();
   ASSERT_TRUE(response->complete());
@@ -216,7 +216,7 @@ TEST_P(RBACIntegrationTest, RouteOverride) {
       1024);
 
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
   response->waitForEndStream();
   ASSERT_TRUE(response->complete());
@@ -242,7 +242,7 @@ TEST_P(RBACIntegrationTest, PathWithQueryAndFragment) {
         },
         1024);
     waitForNextUpstreamRequest();
-    upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+    upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
     response->waitForEndStream();
     ASSERT_TRUE(response->complete());
@@ -269,7 +269,7 @@ TEST_P(RBACIntegrationTest, PathIgnoreCase) {
         },
         1024);
     waitForNextUpstreamRequest();
-    upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+    upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
     response->waitForEndStream();
     ASSERT_TRUE(response->complete());

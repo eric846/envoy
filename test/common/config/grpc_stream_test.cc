@@ -127,7 +127,7 @@ TEST_F(GrpcStreamTest, QueueSizeStat) {
 TEST_F(GrpcStreamTest, HeaderTrailerJustForCodeCoverage) {
   Http::HeaderMapPtr response_headers{new Http::TestHeaderMapImpl{}};
   grpc_stream_.onReceiveInitialMetadata(std::move(response_headers));
-  Http::TestHeaderMapImpl request_headers;
+  Http::TestRequestHeaderMapImpl request_headers;
   grpc_stream_.onCreateInitialMetadata(request_headers);
   Http::HeaderMapPtr trailers{new Http::TestHeaderMapImpl{}};
   grpc_stream_.onReceiveTrailingMetadata(std::move(trailers));

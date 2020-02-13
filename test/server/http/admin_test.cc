@@ -94,7 +94,7 @@ public:
   AdminImpl admin_;
   AdminFilter filter_;
   NiceMock<Http::MockStreamDecoderFilterCallbacks> callbacks_;
-  Http::TestHeaderMapImpl request_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_;
 };
 
 // Check default implementations the admin class picks up.
@@ -650,7 +650,7 @@ public:
   NiceMock<MockInstance> server_;
   Stats::IsolatedStoreImpl listener_scope_;
   AdminImpl admin_;
-  Http::TestHeaderMapImpl request_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_;
   Server::AdminFilter admin_filter_;
   NiceMock<Http::MockStreamDecoderFilterCallbacks> callbacks_;
 };

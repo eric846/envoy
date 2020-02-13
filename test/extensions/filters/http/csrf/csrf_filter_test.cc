@@ -139,7 +139,7 @@ TEST_F(CsrfFilterTest, RequestWithInvalidOrigin) {
   Http::TestRequestHeaderMapImpl request_headers{
       {":method", "PUT"}, {"origin", "cross-origin"}, {":authority", "localhost"}};
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "403"},
       {"content-length", "14"},
       {"content-type", "text/plain"},
@@ -224,7 +224,7 @@ TEST_F(CsrfFilterTest, RequestWithInvalidOriginCsrfEnabledShadowEnabled) {
 
   setShadowEnabled(true);
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "403"},
       {"content-length", "14"},
       {"content-type", "text/plain"},

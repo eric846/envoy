@@ -444,7 +444,7 @@ TEST_F(ExtAuthzHttpClientTest, AuthorizationRequestError) {
 // Test the client when a call to authorization server returns a 5xx error status.
 TEST_F(ExtAuthzHttpClientTest, AuthorizationRequest5xxError) {
   Http::MessagePtr check_response(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "503"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "503"}}}));
   Tracing::MockSpan* child_span{new Tracing::MockSpan()};
   envoy::service::auth::v3::CheckRequest request;
 
@@ -466,7 +466,7 @@ TEST_F(ExtAuthzHttpClientTest, AuthorizationRequest5xxError) {
 // parsed.
 TEST_F(ExtAuthzHttpClientTest, AuthorizationRequestErrorParsingStatusCode) {
   Http::MessagePtr check_response(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "foo"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "foo"}}}));
   Tracing::MockSpan* child_span{new Tracing::MockSpan()};
   envoy::service::auth::v3::CheckRequest request;
 

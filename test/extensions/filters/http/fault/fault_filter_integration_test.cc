@@ -96,7 +96,7 @@ TEST_P(FaultIntegrationTestAllProtocols, ResponseRateLimitNoTrailers) {
 TEST_P(FaultIntegrationTestAllProtocols, HeaderFaultConfig) {
   initializeFilter(header_fault_config_);
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},

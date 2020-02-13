@@ -439,7 +439,7 @@ TEST_P(VhdsIntegrationTest, VhdsVirtualHostAddUpdateRemove) {
 
   // an upstream request to an (now) unknown domain
   codec_client_ = makeHttpConnection(makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/"},
                                           {":scheme", "http"},
                                           {":authority", "vhost.first"},
@@ -506,7 +506,7 @@ TEST_P(VhdsIntegrationTest, RdsWithVirtualHostsVhdsVirtualHostAddUpdateRemove) {
   codec_client_->waitForDisconnect();
 
   codec_client_ = makeHttpConnection(makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/"},
                                           {":scheme", "http"},
                                           {":authority", "vhost.first"},
@@ -547,7 +547,7 @@ TEST_P(VhdsIntegrationTest, VhdsOnDemandUpdateWithResourceNameAsAlias) {
 
   // Attempt to make a request to an unknown host
   codec_client_ = makeHttpConnection(makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/"},
                                           {":scheme", "http"},
                                           {":authority", "vhost_1"},
@@ -593,7 +593,7 @@ TEST_P(VhdsIntegrationTest, VhdsOnDemandUpdateFailToResolveTheAlias) {
 
   // Attempt to make a request to an unknown host
   codec_client_ = makeHttpConnection(makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/"},
                                           {":scheme", "http"},
                                           {":authority", "vhost.third"},
@@ -634,7 +634,7 @@ TEST_P(VhdsIntegrationTest, VhdsOnDemandUpdateFailToResolveOneAliasOutOfSeveral)
 
   // Attempt to make a request to an unknown host
   codec_client_ = makeHttpConnection(makeClientConnection((lookupPort("http"))));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/"},
                                           {":scheme", "http"},
                                           {":authority", "vhost.third"},

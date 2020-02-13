@@ -64,7 +64,7 @@ public:
   ProxyFilterConfigSharedPtr filter_config_;
   std::unique_ptr<ProxyFilter> filter_;
   Http::MockStreamDecoderFilterCallbacks callbacks_;
-  Http::TestHeaderMapImpl request_headers_{{":authority", "foo"}};
+  Http::TestRequestHeaderMapImpl request_headers_{{":authority", "foo"}};
 };
 
 // Default port 80 if upstream TLS not configured.

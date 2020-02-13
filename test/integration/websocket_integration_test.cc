@@ -31,10 +31,10 @@ Http::TestHeaderMapImpl upgradeRequestHeaders(const char* upgrade_type = "websoc
 }
 
 Http::TestHeaderMapImpl upgradeResponseHeaders(const char* upgrade_type = "websocket") {
-  return Http::TestHeaderMapImpl{{":status", "101"},
-                                 {"connection", "upgrade"},
-                                 {"upgrade", upgrade_type},
-                                 {"content-length", "0"}};
+  return Http::TestResponseHeaderMapImpl{{":status", "101"},
+                                         {"connection", "upgrade"},
+                                         {"upgrade", upgrade_type},
+                                         {"content-length", "0"}};
 }
 
 } // namespace
@@ -371,7 +371,7 @@ TEST_P(WebsocketIntegrationTest, WebsocketCustomFilterChain) {
 
   // HTTP requests are configured to disallow large bodies.
   {
-    Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+    Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                             {":path", "/"},
                                             {"content-length", "2048"},
                                             {":authority", "host"},

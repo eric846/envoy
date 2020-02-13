@@ -272,7 +272,7 @@ TEST_F(AuthenticatorTest, TestPubkeyFetchFail) {
   expectVerifyStatus(Status::JwksFetchFail, headers);
 
   Http::MessagePtr response_message(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "401"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "401"}}}));
 }
 
 // This test verifies when a Jwks fetching is not completed yet, but onDestroy() is called,

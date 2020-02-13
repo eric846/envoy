@@ -85,9 +85,9 @@ public:
   }
 
   const std::string operation_name_{"test"};
-  Http::TestHeaderMapImpl request_headers_{
+  Http::TestRequestHeaderMapImpl request_headers_{
       {":path", "/"}, {":method", "GET"}, {"x-request-id", "foo"}};
-  const Http::TestHeaderMapImpl response_headers_{{":status", "500"}};
+  const Http::TestResponseHeaderMapImpl response_headers_{{":status", "500"}};
   SystemTime start_time_;
   StreamInfo::MockStreamInfo stream_info_;
 
@@ -206,7 +206,7 @@ TEST_F(LightStepDriverTest, FlushSeveralSpans) {
   second_span->finishSpan();
 
   Http::MessagePtr msg(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}}));
 
   msg->trailers(Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{"grpc-status", "0"}}});
   std::unique_ptr<Protobuf::Message> collector_response =
@@ -306,7 +306,7 @@ TEST_F(LightStepDriverTest, FlushOneInvalidResponse) {
   first_span->finishSpan();
 
   Http::MessagePtr msg(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}}));
 
   msg->trailers(Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{"grpc-status", "0"}}});
   msg->body() = std::make_unique<Buffer::OwnedImpl>("invalidresponse");
@@ -383,7 +383,7 @@ TEST_F(LightStepDriverTest, FlushOneSpanGrpcFailure) {
   span->finishSpan();
 
   Http::MessagePtr msg(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}}));
 
   // No trailers, gRPC is considered failed.
   callback->onSuccess(std::move(msg));

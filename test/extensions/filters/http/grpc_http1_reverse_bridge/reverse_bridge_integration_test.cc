@@ -56,7 +56,7 @@ INSTANTIATE_TEST_SUITE_P(IpVersions, ReverseBridgeIntegrationTest,
 TEST_P(ReverseBridgeIntegrationTest, EnabledRoute) {
   codec_client_ = makeHttpConnection(lookupPort("http"));
 
-  Http::TestHeaderMapImpl request_headers({{":scheme", "http"},
+  Http::TestRequestHeaderMapImpl request_headers({{":scheme", "http"},
                                            {":method", "POST"},
                                            {":authority", "foo"},
                                            {":path", "/testing.ExampleService/Print"},
@@ -82,7 +82,7 @@ TEST_P(ReverseBridgeIntegrationTest, EnabledRoute) {
               HeaderValueOf(Http::Headers::get().Accept, "application/x-protobuf"));
 
   // Respond to the request.
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   response_headers.setStatus(200);
   response_headers.setContentType("application/x-protobuf");
   upstream_request_->encodeHeaders(response_headers, false);

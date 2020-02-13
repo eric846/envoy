@@ -151,7 +151,7 @@ public:
 
     std::set<std::string> hosts;
     for (int i = 0; i < m; i++) {
-      Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+      Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
 
       // Send header only request.
       IntegrationStreamDecoderPtr response = codec_client_->makeHeaderOnlyRequest(request_headers);

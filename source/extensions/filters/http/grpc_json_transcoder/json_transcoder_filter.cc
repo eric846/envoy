@@ -12,6 +12,7 @@
 #include "common/common/enum_to_int.h"
 #include "common/common/utility.h"
 #include "common/grpc/common.h"
+#include "common/http/header_map_impl.h"
 #include "common/http/headers.h"
 #include "common/http/utility.h"
 #include "common/protobuf/protobuf.h"
@@ -289,7 +290,7 @@ JsonTranscoderConfig::translateProtoMessageToJson(const Protobuf::Message& messa
 
 JsonTranscoderFilter::JsonTranscoderFilter(JsonTranscoderConfig& config) : config_(config) {}
 
-Http::FilterHeadersStatus JsonTranscoderFilter::decodeHeaders(Http::HeaderMap& headers,
+Http::FilterHeadersStatus JsonTranscoderFilter::decodeHeaders(Http::RequestHeaderMap& headers,
                                                               bool end_stream) {
   const auto status =
       config_.createTranscoder(headers, request_in_, response_in_, transcoder_, method_);
@@ -373,7 +374,7 @@ Http::FilterDataStatus JsonTranscoderFilter::decodeData(Buffer::Instance& data, 
   return Http::FilterDataStatus::Continue;
 }
 
-Http::FilterTrailersStatus JsonTranscoderFilter::decodeTrailers(Http::HeaderMap&) {
+Http::FilterTrailersStatus JsonTranscoderFilter::decodeTrailers(Http::RequestTrailerMap&) {
   ASSERT(!error_);
 
   if (!transcoder_) {
@@ -396,7 +397,7 @@ void JsonTranscoderFilter::setDecoderFilterCallbacks(
   decoder_callbacks_ = &callbacks;
 }
 
-Http::FilterHeadersStatus JsonTranscoderFilter::encodeHeaders(Http::HeaderMap& headers,
+Http::FilterHeadersStatus JsonTranscoderFilter::encodeHeaders(Http::ResponseHeaderMap& headers,
                                                               bool end_stream) {
   if (!Grpc::Common::isGrpcResponseHeader(headers, end_stream)) {
     error_ = true;
@@ -417,8 +418,8 @@ Http::FilterHeadersStatus JsonTranscoderFilter::encodeHeaders(Http::HeaderMap& h
     }
 
     // In gRPC wire protocol, headers frame with end_stream is a trailers-only response.
-    // The return value from encodeTrailers is ignored since it is always continue.
-    encodeTrailers(headers);
+    // The return value from encodeTrailers is ignored since it is always continue. fixfix
+    encodeTrailers(*Http::createHeaderMap<Http::ResponseTrailerMapImpl>(headers));
 
     return Http::FilterHeadersStatus::Continue;
   }
@@ -461,7 +462,8 @@ Http::FilterDataStatus JsonTranscoderFilter::encodeData(Buffer::Instance& data, 
   return Http::FilterDataStatus::Continue;
 }
 
-Http::FilterTrailersStatus JsonTranscoderFilter::encodeTrailers(Http::HeaderMap& trailers) {
+Http::FilterTrailersStatus
+JsonTranscoderFilter::encodeTrailers(Http::ResponseTrailerMap& trailers) {
   if (error_ || !transcoder_) {
     return Http::FilterTrailersStatus::Continue;
   }

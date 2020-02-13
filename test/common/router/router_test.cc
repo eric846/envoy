@@ -195,7 +195,7 @@ public:
     EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
     expectResponseTimerCreate();
 
-    Http::TestHeaderMapImpl headers;
+    Http::TestRequestHeaderMapImpl headers;
     HttpTestUtility::addDefaultHeaders(headers);
     router_.decodeHeaders(headers, true);
 
@@ -311,7 +311,7 @@ TEST_F(RouterTest, UpdateServerNameFilterState) {
                                      StreamInfo::FilterState::StateType::Mutable);
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
 
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
@@ -335,7 +335,7 @@ TEST_F(RouterTest, UpdateSubjectAltNamesFilterState) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
 
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
@@ -351,7 +351,7 @@ TEST_F(RouterTest, UpdateSubjectAltNamesFilterState) {
 TEST_F(RouterTest, RouteNotFound) {
   EXPECT_CALL(callbacks_.stream_info_, setResponseFlag(StreamInfo::ResponseFlag::NoRouteFound));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(callbacks_, route()).WillOnce(Return(nullptr));
 
@@ -364,7 +364,7 @@ TEST_F(RouterTest, RouteNotFound) {
 TEST_F(RouterTest, ClusterNotFound) {
   EXPECT_CALL(callbacks_.stream_info_, setResponseFlag(StreamInfo::ResponseFlag::NoRouteFound));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   ON_CALL(cm_, get(_)).WillByDefault(Return(nullptr));
   router_.decodeHeaders(headers, true);
@@ -385,7 +385,7 @@ TEST_F(RouterTest, PoolFailureWithPriority) {
         return nullptr;
       }));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "91"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -396,7 +396,7 @@ TEST_F(RouterTest, PoolFailureWithPriority) {
         EXPECT_EQ(host_address_, host->address());
       }));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 1));
@@ -411,7 +411,7 @@ TEST_F(RouterTest, Http1Upstream) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(callbacks_.route_->route_entry_, finalizeRequestHeaders(_, _, true));
   EXPECT_CALL(span_, injectContext(_));
@@ -435,7 +435,7 @@ TEST_F(RouterTestSuppressEnvoyHeaders, Http1Upstream) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(callbacks_.route_->route_entry_, finalizeRequestHeaders(_, _, false));
   router_.decodeHeaders(headers, true);
@@ -455,7 +455,7 @@ TEST_F(RouterTest, Http2Upstream) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(span_, injectContext(_));
   router_.decodeHeaders(headers, true);
@@ -481,7 +481,7 @@ TEST_F(RouterTest, HashPolicy) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -506,7 +506,7 @@ TEST_F(RouterTest, HashPolicyNoHash) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -559,7 +559,7 @@ TEST_F(RouterTest, AddCookie) {
       }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -609,7 +609,7 @@ TEST_F(RouterTest, AddCookieNoDuplicate) {
       }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -670,7 +670,7 @@ TEST_F(RouterTest, AddMultipleCookies) {
       }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -696,7 +696,7 @@ TEST_F(RouterTest, MetadataMatchCriteria) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -725,7 +725,7 @@ TEST_F(RouterTest, NoMetadataMatchCriteria) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -738,7 +738,7 @@ TEST_F(RouterTest, CancelBeforeBoundToPool) {
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _)).WillOnce(Return(&cancellable_));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -751,14 +751,14 @@ TEST_F(RouterTest, CancelBeforeBoundToPool) {
 TEST_F(RouterTest, NoHost) {
   EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _)).WillOnce(Return(nullptr));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "19"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::NoHealthyUpstream));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_EQ(0U, cm_.thread_local_cluster_.cluster_.info_->stats_store_
@@ -771,7 +771,7 @@ TEST_F(RouterTest, NoHost) {
 TEST_F(RouterTest, MaintenanceMode) {
   EXPECT_CALL(*cm_.thread_local_cluster_.cluster_.info_, maintenanceMode()).WillOnce(Return(true));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "503"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "503"},
                                            {"content-length", "16"},
                                            {"content-type", "text/plain"},
                                            {"x-envoy-overloaded", "true"}};
@@ -780,7 +780,7 @@ TEST_F(RouterTest, MaintenanceMode) {
   EXPECT_CALL(callbacks_.stream_info_, setResponseFlag(StreamInfo::ResponseFlag::UpstreamOverflow));
   EXPECT_CALL(span_, injectContext(_)).Times(0);
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_EQ(1U, cm_.thread_local_cluster_.cluster_.info_->stats_store_
@@ -798,13 +798,13 @@ TEST_F(RouterTest, MaintenanceMode) {
 TEST_F(RouterTestSuppressEnvoyHeaders, MaintenanceMode) {
   EXPECT_CALL(*cm_.thread_local_cluster_.cluster_.info_, maintenanceMode()).WillOnce(Return(true));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "16"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
   EXPECT_CALL(callbacks_.stream_info_, setResponseFlag(StreamInfo::ResponseFlag::UpstreamOverflow));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 }
@@ -822,7 +822,7 @@ TEST_F(RouterTest, ResponseCodeDetailsSetByUpstream) {
           }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -849,7 +849,7 @@ TEST_F(RouterTest, EnvoyUpstreamServiceTime) {
           }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -890,7 +890,7 @@ void RouterTestBase::testAppendCluster(absl::optional<Http::LowerCaseString> clu
           }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -945,7 +945,7 @@ void RouterTestBase::testAppendUpstreamHost(
           }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -1006,12 +1006,12 @@ void RouterTestBase::testDoNotForward(
                                                  StreamInfo::FilterState::StateType::ReadOnly,
                                                  StreamInfo::FilterState::LifeSpan::FilterChain);
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "204"},
       {not_forwarded_header_name.value_or(Http::Headers::get().EnvoyNotForwarded).get(), "true"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -1040,14 +1040,14 @@ TEST_F(RouterTest, AllDebugConfig) {
                                                  StreamInfo::FilterState::LifeSpan::FilterChain);
   cm_.conn_pool_.host_->hostname_ = "scooby.doo";
 
-  Http::TestHeaderMapImpl response_headers{{":status", "204"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "204"},
                                            {"x-envoy-cluster", "fake_cluster"},
                                            {"x-envoy-upstream-hostname", "scooby.doo"},
                                            {"x-envoy-upstream-host-address", "10.0.0.5:9211"},
                                            {"x-envoy-not-forwarded", "true"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -1070,7 +1070,7 @@ TEST_F(RouterTestSuppressEnvoyHeaders, EnvoyUpstreamServiceTime) {
           }));
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
 
@@ -1156,7 +1156,7 @@ TEST_F(RouterTest, ResetDuringEncodeHeaders) {
         encoder.stream_.resetStream(Http::StreamResetReason::RemoteReset);
       }));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   // First connection is successful and reset happens later on.
   EXPECT_CALL(cm_.conn_pool_.host_->outlier_detector_,
@@ -1195,7 +1195,7 @@ TEST_F(RouterTest, UpstreamTimeout) {
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
   EXPECT_CALL(encoder.stream_, resetStream(Http::StreamResetReason::LocalReset));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -1404,7 +1404,7 @@ TEST_F(RouterTest, TimeoutBudgetHistogramStatDuringRetries) {
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
   EXPECT_CALL(encoder2.stream_, resetStream(Http::StreamResetReason::LocalReset));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   test_time_.sleep(std::chrono::milliseconds(100));
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
@@ -1496,7 +1496,7 @@ TEST_F(RouterTest, TimeoutBudgetHistogramStatDuringGlobalTimeout) {
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
   EXPECT_CALL(encoder2.stream_, resetStream(Http::StreamResetReason::LocalReset));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   test_time_.sleep(std::chrono::milliseconds(240));
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
@@ -1763,7 +1763,7 @@ TEST_F(RouterTest, UpstreamTimeoutWithAltResponse) {
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
   EXPECT_CALL(encoder.stream_, resetStream(Http::StreamResetReason::LocalReset));
-  Http::TestHeaderMapImpl response_headers{{":status", "204"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "204"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   EXPECT_CALL(*router_.retry_state_, shouldRetryReset(_, _)).Times(0);
   EXPECT_CALL(
@@ -1811,7 +1811,7 @@ TEST_F(RouterTest, UpstreamPerTryTimeout) {
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
   EXPECT_CALL(encoder.stream_, resetStream(Http::StreamResetReason::LocalReset));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -1864,7 +1864,7 @@ TEST_F(RouterTest, UpstreamPerTryTimeoutDelayedPoolReady) {
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
   EXPECT_CALL(encoder.stream_, resetStream(Http::StreamResetReason::LocalReset));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -1922,7 +1922,7 @@ TEST_F(RouterTest, UpstreamPerTryTimeoutExcludesNewStream) {
   EXPECT_CALL(*response_timeout_, disableTimer());
   EXPECT_CALL(callbacks_.stream_info_,
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -2699,7 +2699,7 @@ TEST_F(RouterTest, RetryNoneHealthy) {
   encoder1.stream_.resetStream(Http::StreamResetReason::LocalReset);
 
   EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _)).WillOnce(Return(nullptr));
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "19"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -3071,7 +3071,7 @@ TEST_F(RouterTest, RetryTimeoutDuringRetryDelay) {
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
 
   EXPECT_CALL(cm_.conn_pool_.host_->outlier_detector_, putResponseTime(_)).Times(0);
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -3119,7 +3119,7 @@ TEST_F(RouterTest, RetryTimeoutDuringRetryDelayWithUpstreamRequestNoHost) {
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
 
   EXPECT_CALL(cm_.conn_pool_.host_->outlier_detector_, putResponseTime(_)).Times(0);
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "504"}, {"content-length", "24"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
@@ -3170,7 +3170,7 @@ TEST_F(RouterTest, RetryTimeoutDuringRetryDelayWithUpstreamRequestNoHostAltRespo
               setResponseFlag(StreamInfo::ResponseFlag::UpstreamRequestTimeout));
 
   EXPECT_CALL(cm_.conn_pool_.host_->outlier_detector_, putResponseTime(_)).Times(0);
-  Http::TestHeaderMapImpl response_headers{{":status", "204"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "204"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   response_timeout_->invokeCallback();
   EXPECT_TRUE(verifyHostUpstreamStats(0, 1));
@@ -3605,7 +3605,7 @@ TEST_F(RouterTest, Shadow) {
   EXPECT_CALL(runtime_.snapshot_, featureEnabled("bar", 0, 43, 10000)).WillOnce(Return(true));
   EXPECT_CALL(runtime_.snapshot_, featureEnabled("buzz", 0, 43, 10000)).WillOnce(Return(true));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, false);
 
@@ -3699,9 +3699,9 @@ TEST_F(RouterTest, Redirect) {
   absl::string_view route_name_view(route_name);
   EXPECT_CALL(callbacks_.stream_info_, setRouteName(route_name_view));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "301"}, {"location", "hello"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "301"}, {"location", "hello"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -3720,9 +3720,9 @@ TEST_F(RouterTest, RedirectFound) {
   absl::string_view route_name_view(route_name);
   EXPECT_CALL(callbacks_.stream_info_, setRouteName(route_name_view));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "302"}, {"location", "hello"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "302"}, {"location", "hello"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -3738,10 +3738,10 @@ TEST_F(RouterTest, DirectResponse) {
   absl::string_view route_name_view(route_name);
   EXPECT_CALL(callbacks_.stream_info_, setRouteName(route_name_view));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   EXPECT_CALL(span_, injectContext(_)).Times(0);
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -3759,11 +3759,11 @@ TEST_F(RouterTest, DirectResponseWithBody) {
   absl::string_view route_name_view(route_name);
   EXPECT_CALL(callbacks_.stream_info_, setRouteName(route_name_view));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "200"}, {"content-length", "15"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
   EXPECT_CALL(callbacks_, encodeData(_, true));
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -3781,10 +3781,10 @@ TEST_F(RouterTest, DirectResponseWithLocation) {
   absl::string_view route_name_view(route_name);
   EXPECT_CALL(callbacks_.stream_info_, setRouteName(route_name_view));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "201"}, {"location", "http://host/"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "201"}, {"location", "http://host/"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   EXPECT_CALL(span_, injectContext(_)).Times(0);
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -3802,10 +3802,10 @@ TEST_F(RouterTest, DirectResponseWithoutLocation) {
   absl::string_view route_name_view(route_name);
   EXPECT_CALL(callbacks_.stream_info_, setRouteName(route_name_view));
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), true));
   EXPECT_CALL(span_, injectContext(_)).Times(0);
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   router_.decodeHeaders(headers, true);
   EXPECT_TRUE(verifyHostUpstreamStats(0, 0));
@@ -4108,7 +4108,7 @@ TEST(RouterFilterUtilityTest, FinalTimeout) {
   {
     NiceMock<MockRouteEntry> route;
     EXPECT_CALL(route, timeout()).WillOnce(Return(std::chrono::milliseconds(10)));
-    Http::TestHeaderMapImpl headers;
+    Http::TestRequestHeaderMapImpl headers;
     FilterUtility::TimeoutData timeout =
         FilterUtility::finalTimeout(route, headers, true, false, false, false);
     EXPECT_EQ(std::chrono::milliseconds(10), timeout.global_timeout_);
@@ -4480,12 +4480,12 @@ TEST(RouterFilterUtilityTest, FinalTimeoutSupressEnvoyHeaders) {
 
 TEST(RouterFilterUtilityTest, SetUpstreamScheme) {
   {
-    Http::TestHeaderMapImpl headers;
+    Http::TestRequestHeaderMapImpl headers;
     FilterUtility::setUpstreamScheme(headers, false);
     EXPECT_EQ("http", headers.get_(":scheme"));
   }
   {
-    Http::TestHeaderMapImpl headers;
+    Http::TestRequestHeaderMapImpl headers;
     FilterUtility::setUpstreamScheme(headers, true);
     EXPECT_EQ("https", headers.get_(":scheme"));
   }
@@ -4712,7 +4712,7 @@ TEST_F(RouterTest, ApplicationProtocols) {
 
   expectResponseTimerCreate();
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(span_, injectContext(_));
   router_.decodeHeaders(headers, true);
@@ -4904,7 +4904,7 @@ TEST_F(RouterTestChildSpan, BasicFlow) {
             return nullptr;
           }));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(callbacks_.active_span_, spawnChild_(_, "router fake_cluster egress", _))
       .WillOnce(Return(child_span));
@@ -4945,7 +4945,7 @@ TEST_F(RouterTestChildSpan, ResetFlow) {
             return nullptr;
           }));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(callbacks_.active_span_, spawnChild_(_, "router fake_cluster egress", _))
       .WillOnce(Return(child_span));
@@ -4990,7 +4990,7 @@ TEST_F(RouterTestChildSpan, CancelFlow) {
         return nullptr;
       }));
 
-  Http::TestHeaderMapImpl headers;
+  Http::TestRequestHeaderMapImpl headers;
   HttpTestUtility::addDefaultHeaders(headers);
   EXPECT_CALL(callbacks_.active_span_, spawnChild_(_, "router fake_cluster egress", _))
       .WillOnce(Return(child_span));

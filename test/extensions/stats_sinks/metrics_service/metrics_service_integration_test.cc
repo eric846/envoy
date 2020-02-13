@@ -148,7 +148,7 @@ TEST_P(MetricsServiceIntegrationTest, BasicFlow) {
   initialize();
   // Send an empty request so that histogram values merged for cluster_0.
   codec_client_ = makeHttpConnection(makeClientConnection(lookupPort("http")));
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"},
                                           {":path", "/test/long/url"},
                                           {":scheme", "http"},
                                           {":authority", "host"},

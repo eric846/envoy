@@ -62,8 +62,8 @@ public:
   HealthCheckCacheManagerSharedPtr cache_manager_;
   std::unique_ptr<HealthCheckFilter> filter_;
   NiceMock<Http::MockStreamDecoderFilterCallbacks> callbacks_;
-  Http::TestHeaderMapImpl request_headers_;
-  Http::TestHeaderMapImpl request_headers_no_hc_;
+  Http::TestRequestHeaderMapImpl request_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_no_hc_;
   HeaderDataVectorSharedPtr header_data_;
 
   class MockHealthCheckCluster : public NiceMock<Upstream::MockThreadLocalCluster> {

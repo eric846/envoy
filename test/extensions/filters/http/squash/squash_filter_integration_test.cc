@@ -45,9 +45,9 @@ public:
     result = request_stream->waitForEndStream(*dispatcher_);
     RELEASE_ASSERT(result, result.message());
     if (body.empty()) {
-      request_stream->encodeHeaders(Http::TestHeaderMapImpl{{":status", status}}, true);
+      request_stream->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", status}}, true);
     } else {
-      request_stream->encodeHeaders(Http::TestHeaderMapImpl{{":status", status}}, false);
+      request_stream->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", status}}, false);
       Buffer::OwnedImpl responseBuffer(body);
       request_stream->encodeData(responseBuffer, true);
     }

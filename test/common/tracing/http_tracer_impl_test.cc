@@ -146,11 +146,11 @@ TEST_F(HttpConnManFinalizerImplTest, OriginalAndLongPath) {
   const std::string path_prefix = "http://";
   const std::string expected_path(256, 'a');
 
-  Http::TestHeaderMapImpl request_headers{{"x-request-id", "id"},
+  Http::TestRequestHeaderMapImpl request_headers{{"x-request-id", "id"},
                                           {"x-envoy-original-path", path},
                                           {":method", "GET"},
                                           {"x-forwarded-proto", "http"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
 
   absl::optional<Http::Protocol> protocol = Http::Protocol::Http2;
@@ -174,9 +174,9 @@ TEST_F(HttpConnManFinalizerImplTest, NoGeneratedId) {
   const std::string path_prefix = "http://";
   const std::string expected_path(256, 'a');
 
-  Http::TestHeaderMapImpl request_headers{
+  Http::TestRequestHeaderMapImpl request_headers{
       {"x-envoy-original-path", path}, {":method", "GET"}, {"x-forwarded-proto", "http"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
 
   absl::optional<Http::Protocol> protocol = Http::Protocol::Http2;
@@ -292,11 +292,11 @@ TEST_F(HttpConnManFinalizerImplTest, UpstreamClusterTagSet) {
 }
 
 TEST_F(HttpConnManFinalizerImplTest, SpanOptionalHeaders) {
-  Http::TestHeaderMapImpl request_headers{{"x-request-id", "id"},
+  Http::TestRequestHeaderMapImpl request_headers{{"x-request-id", "id"},
                                           {":path", "/test"},
                                           {":method", "GET"},
                                           {"x-forwarded-proto", "https"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
 
   absl::optional<Http::Protocol> protocol = Http::Protocol::Http10;
@@ -332,7 +332,7 @@ TEST_F(HttpConnManFinalizerImplTest, SpanOptionalHeaders) {
 TEST_F(HttpConnManFinalizerImplTest, SpanCustomTags) {
   TestEnvironment::setEnvVar("E_CC", "c", 1);
 
-  Http::TestHeaderMapImpl request_headers{{"x-request-id", "id"},
+  Http::TestRequestHeaderMapImpl request_headers{{"x-request-id", "id"},
                                           {":path", "/test"},
                                           {":method", "GET"},
                                           {"x-forwarded-proto", "https"},
@@ -449,11 +449,11 @@ metadata:
 }
 
 TEST_F(HttpConnManFinalizerImplTest, SpanPopulatedFailureResponse) {
-  Http::TestHeaderMapImpl request_headers{{"x-request-id", "id"},
+  Http::TestRequestHeaderMapImpl request_headers{{"x-request-id", "id"},
                                           {":path", "/test"},
                                           {":method", "GET"},
                                           {"x-forwarded-proto", "http"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
 
   request_headers.setHost("api");
@@ -500,7 +500,7 @@ TEST_F(HttpConnManFinalizerImplTest, SpanPopulatedFailureResponse) {
 TEST_F(HttpConnManFinalizerImplTest, GrpcOkStatus) {
   const std::string path_prefix = "http://";
 
-  Http::TestHeaderMapImpl request_headers{{":method", "POST"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "POST"},
                                           {":scheme", "http"},
                                           {":path", "/pb.Foo/Bar"},
                                           {":authority", "example.com:80"},
@@ -508,7 +508,7 @@ TEST_F(HttpConnManFinalizerImplTest, GrpcOkStatus) {
                                           {"x-forwarded-proto", "http"},
                                           {"te", "trailers"}};
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"},
                                            {"content-type", "application/grpc"}};
   Http::TestHeaderMapImpl response_trailers{{"grpc-status", "0"}, {"grpc-message", ""}};
 
@@ -544,7 +544,7 @@ TEST_F(HttpConnManFinalizerImplTest, GrpcOkStatus) {
 TEST_F(HttpConnManFinalizerImplTest, GrpcErrorTag) {
   const std::string path_prefix = "http://";
 
-  Http::TestHeaderMapImpl request_headers{{":method", "POST"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "POST"},
                                           {":scheme", "http"},
                                           {":path", "/pb.Foo/Bar"},
                                           {":authority", "example.com:80"},
@@ -553,7 +553,7 @@ TEST_F(HttpConnManFinalizerImplTest, GrpcErrorTag) {
                                           {"x-forwarded-proto", "http"},
                                           {"te", "trailers"}};
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"},
                                            {"content-type", "application/grpc"}};
   Http::TestHeaderMapImpl response_trailers{{"grpc-status", "7"},
                                             {"grpc-message", "permission denied"}};
@@ -584,7 +584,7 @@ TEST_F(HttpConnManFinalizerImplTest, GrpcErrorTag) {
 TEST_F(HttpConnManFinalizerImplTest, GrpcTrailersOnly) {
   const std::string path_prefix = "http://";
 
-  Http::TestHeaderMapImpl request_headers{{":method", "POST"},
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "POST"},
                                           {":scheme", "http"},
                                           {":path", "/pb.Foo/Bar"},
                                           {":authority", "example.com:80"},
@@ -592,7 +592,7 @@ TEST_F(HttpConnManFinalizerImplTest, GrpcTrailersOnly) {
                                           {"x-forwarded-proto", "http"},
                                           {"te", "trailers"}};
 
-  Http::TestHeaderMapImpl response_headers{{":status", "200"},
+  Http::TestResponseHeaderMapImpl response_headers{{":status", "200"},
                                            {"content-type", "application/grpc"},
                                            {"grpc-status", "7"},
                                            {"grpc-message", "permission denied"}};
@@ -629,8 +629,8 @@ TEST(HttpNullTracerTest, BasicFunctionality) {
   HttpNullTracer null_tracer;
   MockConfig config;
   StreamInfo::MockStreamInfo stream_info;
-  Http::TestHeaderMapImpl request_headers;
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestRequestHeaderMapImpl request_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
 
   SpanPtr span_ptr =
@@ -652,9 +652,9 @@ public:
     tracer_ = std::make_unique<HttpTracerImpl>(std::move(driver_ptr), local_info_);
   }
 
-  Http::TestHeaderMapImpl request_headers_{
+  Http::TestRequestHeaderMapImpl request_headers_{
       {":path", "/"}, {":method", "GET"}, {"x-request-id", "foo"}, {":authority", "test"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
   StreamInfo::MockStreamInfo stream_info_;
   NiceMock<LocalInfo::MockLocalInfo> local_info_;

@@ -351,7 +351,7 @@ TEST_P(QuicHttpIntegrationTest, ConnectionMigration) {
   codec_client_->sendData(*request_encoder_, 1024u, true);
   waitForNextUpstreamRequest(0, TestUtility::DefaultTimeout);
   // Send response headers, and end_stream if there is no response body.
-  const Http::TestHeaderMapImpl response_headers{{":status", "200"}};
+  const Http::TestResponseHeaderMapImpl response_headers{{":status", "200"}};
   size_t response_size{5u};
   upstream_request_->encodeHeaders(response_headers, false);
   upstream_request_->encodeData(response_size, true);

@@ -33,8 +33,8 @@ DEFINE_PROTO_FUZZER(const test::extensions::filters::common::expr::EvaluatorTest
     return;
   }
 
-  Http::TestHeaderMapImpl request_headers = Fuzz::fromHeaders(input.request_headers());
-  Http::TestHeaderMapImpl response_headers = Fuzz::fromHeaders(input.response_headers());
+  Http::TestRequestHeaderMapImpl request_headers = Fuzz::fromHeaders(input.request_headers());
+  Http::TestResponseHeaderMapImpl response_headers = Fuzz::fromHeaders(input.response_headers());
   Http::TestHeaderMapImpl response_trailers = Fuzz::fromHeaders(input.trailers());
 
   try {

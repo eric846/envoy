@@ -144,8 +144,8 @@ public:
   std::unique_ptr<FaultFilter> filter_;
   NiceMock<Http::MockStreamDecoderFilterCallbacks> decoder_filter_callbacks_;
   NiceMock<Http::MockStreamEncoderFilterCallbacks> encoder_filter_callbacks_;
-  Http::TestHeaderMapImpl request_headers_;
-  Http::TestHeaderMapImpl response_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_;
+  Http::TestResponseHeaderMapImpl response_headers_;
   Buffer::OwnedImpl data_;
   NiceMock<Runtime::MockLoader> runtime_;
   Event::MockTimer* timer_{};
@@ -246,7 +246,7 @@ TEST_F(FaultFilterTest, AbortWithHttpStatus) {
   EXPECT_CALL(runtime_.snapshot_, getInteger("fault.http.abort.http_status", 429))
       .WillOnce(Return(429));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "429"}, {"content-length", "18"}, {"content-type", "text/plain"}};
   EXPECT_CALL(decoder_filter_callbacks_,
               encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
@@ -466,7 +466,7 @@ TEST_F(FaultFilterTest, FixedDelayAndAbortDownstream) {
   EXPECT_CALL(runtime_.snapshot_, getInteger("fault.http.cluster.abort.http_status", 503))
       .WillOnce(Return(500));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "500"}, {"content-length", "18"}, {"content-type", "text/plain"}};
   EXPECT_CALL(decoder_filter_callbacks_,
               encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
@@ -524,7 +524,7 @@ TEST_F(FaultFilterTest, FixedDelayAndAbort) {
   EXPECT_CALL(runtime_.snapshot_, getInteger("fault.http.abort.http_status", 503))
       .WillOnce(Return(503));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "18"}, {"content-type", "text/plain"}};
   EXPECT_CALL(decoder_filter_callbacks_,
               encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
@@ -576,7 +576,7 @@ TEST_F(FaultFilterTest, FixedDelayAndAbortDownstreamNodes) {
   EXPECT_CALL(runtime_.snapshot_, getInteger("fault.http.abort.http_status", 503))
       .WillOnce(Return(503));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "18"}, {"content-type", "text/plain"}};
   EXPECT_CALL(decoder_filter_callbacks_,
               encodeHeaders_(HeaderMapEqualRef(&response_headers), false));
@@ -642,7 +642,7 @@ TEST_F(FaultFilterTest, FixedDelayAndAbortHeaderMatchSuccess) {
   EXPECT_CALL(runtime_.snapshot_, getInteger("fault.http.abort.http_status", 503))
       .WillOnce(Return(503));
 
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "18"}, {"content-type", "text/plain"}};
   EXPECT_CALL(decoder_filter_callbacks_,
               encodeHeaders_(HeaderMapEqualRef(&response_headers), false));

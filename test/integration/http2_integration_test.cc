@@ -326,7 +326,7 @@ TEST_P(Http2MetadataIntegrationTest, TestResponseMetadata) {
                                                 10);
 
   waitForNextUpstreamRequest();
-  upstream_request_->encode100ContinueHeaders(Http::TestHeaderMapImpl{{":status", "100"}});
+  upstream_request_->encode100ContinueHeaders(Http::TestResponseHeaderMapImpl{{":status", "100"}});
   response->waitForContinueHeaders();
   upstream_request_->encodeHeaders(default_response_headers_, false);
   upstream_request_->encodeData(100, true);
@@ -621,7 +621,7 @@ void Http2MetadataIntegrationTest::runHeaderOnlyTest(bool send_request_body, siz
                                            body_size);
   } else {
     response =
-        codec_client_->makeHeaderOnlyRequest(Http::TestHeaderMapImpl{{":method", "POST"},
+        codec_client_->makeHeaderOnlyRequest(Http::TestRequestHeaderMapImpl{{":method", "POST"},
                                                                      {":path", "/test/long/url"},
                                                                      {":scheme", "http"},
                                                                      {":authority", "host"}});
@@ -937,7 +937,7 @@ TEST_P(Http2IntegrationTest, IdleTimeoutWithSimultaneousRequests) {
   ASSERT_TRUE(upstream_request2->waitForEndStream(*dispatcher_));
 
   // Respond to request 2
-  upstream_request2->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request2->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request2->encodeData(request2_bytes, true);
   response2->waitForEndStream();
   EXPECT_TRUE(upstream_request2->complete());
@@ -951,7 +951,7 @@ TEST_P(Http2IntegrationTest, IdleTimeoutWithSimultaneousRequests) {
   EXPECT_NE(0, test_server_->counter("cluster.cluster_0.upstream_cx_total")->value());
 
   // Respond to request 1
-  upstream_request1->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request1->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request1->encodeData(request1_bytes, true);
   response1->waitForEndStream();
   EXPECT_TRUE(upstream_request1->complete());
@@ -1004,8 +1004,8 @@ TEST_P(Http2IntegrationTest, RequestMirrorWithBody) {
   EXPECT_EQ("hello", upstream_request2->body().toString());
   EXPECT_EQ("host-shadow", upstream_request2->headers().Host()->value().getStringView());
 
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
-  upstream_request2->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request2->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
   request->waitForEndStream();
   EXPECT_EQ("200", request->headers().Status()->value().getStringView());
 
@@ -1057,7 +1057,7 @@ void Http2IntegrationTest::simultaneousRequest(int32_t request1_bytes, int32_t r
   ASSERT_TRUE(upstream_request2->waitForEndStream(*dispatcher_));
 
   // Respond to request 2
-  upstream_request2->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request2->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request2->encodeData(request2_bytes, true);
   response2->waitForEndStream();
   EXPECT_TRUE(upstream_request2->complete());
@@ -1067,7 +1067,7 @@ void Http2IntegrationTest::simultaneousRequest(int32_t request1_bytes, int32_t r
   EXPECT_EQ(request2_bytes, response2->body().size());
 
   // Respond to request 1
-  upstream_request1->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+  upstream_request1->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
   upstream_request1->encodeData(request2_bytes, true);
   response1->waitForEndStream();
   EXPECT_TRUE(upstream_request1->complete());
@@ -1278,7 +1278,7 @@ void Http2RingHashIntegrationTest::sendMultipleRequests(
 
   for (uint32_t i = 0; i < num_requests; ++i) {
     ASSERT_TRUE(upstream_requests[i]->waitForEndStream(*dispatcher_));
-    upstream_requests[i]->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+    upstream_requests[i]->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
     upstream_requests[i]->encodeData(rand.random() % (1024 * 2), true);
   }
 

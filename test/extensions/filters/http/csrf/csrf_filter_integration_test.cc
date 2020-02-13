@@ -57,7 +57,7 @@ protected:
     codec_client_ = makeHttpConnection(lookupPort("http"));
     auto response = codec_client_->makeRequestWithBody(request_headers, 1024);
     waitForNextUpstreamRequest();
-    upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+    upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
     response->waitForEndStream();
 
     return response;

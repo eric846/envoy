@@ -19,8 +19,8 @@ namespace Envoy {
 
 static void BM_AccessLogFormatter(benchmark::State& state) {
   size_t output_bytes = 0;
-  Http::TestHeaderMapImpl request_headers;
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestRequestHeaderMapImpl request_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
   for (auto _ : state) {
     output_bytes +=
@@ -33,8 +33,8 @@ BENCHMARK(BM_AccessLogFormatter);
 
 static void BM_JsonAccessLogFormatter(benchmark::State& state) {
   size_t output_bytes = 0;
-  Http::TestHeaderMapImpl request_headers;
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestRequestHeaderMapImpl request_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
   for (auto _ : state) {
     output_bytes +=
@@ -47,8 +47,8 @@ BENCHMARK(BM_JsonAccessLogFormatter);
 
 static void BM_TypedJsonAccessLogFormatter(benchmark::State& state) {
   size_t output_bytes = 0;
-  Http::TestHeaderMapImpl request_headers;
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestRequestHeaderMapImpl request_headers;
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
   for (auto _ : state) {
     output_bytes += typed_json_formatter

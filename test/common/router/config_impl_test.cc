@@ -4183,7 +4183,7 @@ virtual_hosts:
     EXPECT_EQ("meh", route_entry->typedMetadata().get<Baz>(baz_factory.name())->name);
     EXPECT_EQ("hello", route->decorator()->getOperation());
 
-    Http::TestHeaderMapImpl response_headers;
+    Http::TestResponseHeaderMapImpl response_headers;
     StreamInfo::MockStreamInfo stream_info;
     route_entry->finalizeResponseHeaders(response_headers, stream_info);
     EXPECT_EQ(response_headers, Http::TestHeaderMapImpl{});

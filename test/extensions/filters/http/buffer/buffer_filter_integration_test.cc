@@ -150,7 +150,7 @@ TEST_P(BufferIntegrationTest, RouteDisabled) {
                                          1024 * 65);
 
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
   response->waitForEndStream();
   ASSERT_TRUE(response->complete());
@@ -176,7 +176,7 @@ TEST_P(BufferIntegrationTest, RouteOverride) {
                                          1024 * 65);
 
   waitForNextUpstreamRequest();
-  upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, true);
+  upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, true);
 
   response->waitForEndStream();
   ASSERT_TRUE(response->complete());

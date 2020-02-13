@@ -290,7 +290,7 @@ key:
                                 {":authority", "host"},
                                 {":scheme", "http"},
                                 {"Addr", fmt::format("x-foo-key={}", scope_key)}},
-        456, Http::TestHeaderMapImpl{{":status", "200"}, {"service", scope_key}}, 123,
+        456, Http::TestResponseHeaderMapImpl{{":status", "200"}, {"service", scope_key}}, 123,
         /*cluster_0*/ 0);
   }
   test_server_->waitForCounterGe("http.config_test.scoped_rds.foo-scoped-routes.update_attempt",
@@ -325,7 +325,7 @@ key:
                                 {":authority", "host"},
                                 {":scheme", "http"},
                                 {"Addr", fmt::format("x-foo-key={}", scope_key)}},
-        456, Http::TestHeaderMapImpl{{":status", "200"}, {"service", scope_key}}, 123,
+        456, Http::TestResponseHeaderMapImpl{{":status", "200"}, {"service", scope_key}}, 123,
         /*cluster_1*/ 1);
   }
   // Now requests within scope 'foo_scope3' get routed to 'cluster_0'.
@@ -335,7 +335,7 @@ key:
                               {":authority", "host"},
                               {":scheme", "http"},
                               {"Addr", fmt::format("x-foo-key={}", "baz-route")}},
-      456, Http::TestHeaderMapImpl{{":status", "200"}, {"service", "bluh"}}, 123,
+      456, Http::TestResponseHeaderMapImpl{{":status", "200"}, {"service", "bluh"}}, 123,
       /*cluster_0*/ 0);
 
   // Delete foo_scope1 and requests within the scope gets 400s.
@@ -380,7 +380,7 @@ key:
                               {":authority", "host"},
                               {":scheme", "http"},
                               {"Addr", "x-foo-key=xyz-route"}},
-      456, Http::TestHeaderMapImpl{{":status", "200"}, {"service", "xyz-route"}}, 123,
+      456, Http::TestResponseHeaderMapImpl{{":status", "200"}, {"service", "xyz-route"}}, 123,
       /*cluster_1 */ 1);
 }
 
@@ -404,7 +404,7 @@ key:
                                  1);
   codec_client_ = makeHttpConnection(lookupPort("http"));
   auto response =
-      codec_client_->makeHeaderOnlyRequest(Http::TestHeaderMapImpl{{":method", "GET"},
+      codec_client_->makeHeaderOnlyRequest(Http::TestRequestHeaderMapImpl{{":method", "GET"},
                                                                    {":path", "/meh"},
                                                                    {":authority", "host"},
                                                                    {":scheme", "http"},
@@ -441,7 +441,8 @@ key:
                               {":authority", "host"},
                               {":scheme", "http"},
                               {"Addr", "x-foo-key=foo"}},
-      456, Http::TestHeaderMapImpl{{":status", "200"}, {"service", "bluh"}}, 123, /*cluster_0*/ 0);
+      456, Http::TestResponseHeaderMapImpl{{":status", "200"}, {"service", "bluh"}}, 123,
+      /*cluster_0*/ 0);
 }
 
 } // namespace

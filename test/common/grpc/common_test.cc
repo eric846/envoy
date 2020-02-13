@@ -301,45 +301,45 @@ TEST(GrpcContextTest, IsGrpcResponseHeader) {
 TEST(GrpcContextTest, ValidateResponse) {
   {
     Http::ResponseMessageImpl response(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}});
+        Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}});
     response.trailers(Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{"grpc-status", "0"}}});
     EXPECT_NO_THROW(Common::validateResponse(response));
   }
   {
     Http::ResponseMessageImpl response(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "503"}}});
+        Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "503"}}});
     EXPECT_THROW_WITH_MESSAGE(Common::validateResponse(response), Exception,
                               "non-200 response code");
   }
   {
     Http::ResponseMessageImpl response(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}});
+        Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}});
     response.trailers(Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{"grpc-status", "100"}}});
     EXPECT_THROW_WITH_MESSAGE(Common::validateResponse(response), Exception,
                               "bad grpc-status trailer");
   }
   {
     Http::ResponseMessageImpl response(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}});
+        Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}});
     response.trailers(Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{"grpc-status", "4"}}});
     EXPECT_THROW_WITH_MESSAGE(Common::validateResponse(response), Exception, "");
   }
   {
     Http::ResponseMessageImpl response(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}}});
+        Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "200"}}});
     response.trailers(Http::HeaderMapPtr{
         new Http::TestHeaderMapImpl{{"grpc-status", "4"}, {"grpc-message", "custom error"}}});
     EXPECT_THROW_WITH_MESSAGE(Common::validateResponse(response), Exception, "custom error");
   }
   {
     Http::ResponseMessageImpl response(Http::HeaderMapPtr{
-        new Http::TestHeaderMapImpl{{":status", "200"}, {"grpc-status", "100"}}});
+        new Http::TestResponseHeaderMapImpl{{":status", "200"}, {"grpc-status", "100"}}});
     EXPECT_THROW_WITH_MESSAGE(Common::validateResponse(response), Exception,
                               "bad grpc-status header");
   }
   {
-    Http::ResponseMessageImpl response(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "200"}, {"grpc-status", "4"}}});
+    Http::ResponseMessageImpl response(Http::HeaderMapPtr{
+        new Http::TestResponseHeaderMapImpl{{":status", "200"}, {"grpc-status", "4"}}});
     EXPECT_THROW_WITH_MESSAGE(Common::validateResponse(response), Exception, "");
   }
   {

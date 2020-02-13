@@ -94,11 +94,11 @@ protected:
     data_.drain(data_len);
   }
 
-  void doRequest(Http::TestHeaderMapImpl&& headers, bool end_stream) {
+  void doRequest(Http::TestRequestHeaderMapImpl&& headers, bool end_stream) {
     EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->decodeHeaders(headers, end_stream));
   }
 
-  void doResponseCompression(Http::TestHeaderMapImpl&& headers, bool with_trailers) {
+  void doResponseCompression(Http::TestRequestHeaderMapImpl&& headers, bool with_trailers) {
     uint64_t content_length;
     ASSERT_TRUE(absl::SimpleAtoi(headers.get_("content-length"), &content_length));
     feedBuffer(content_length);
@@ -160,11 +160,11 @@ protected:
     EXPECT_EQ(8, config_->contentTypeValues().size());
   }
 
-  void doResponseNoCompression(Http::TestHeaderMapImpl&& headers) {
+  void doResponseNoCompression(Http::TestResponseHeaderMapImpl&& headers) {
     uint64_t content_length;
     ASSERT_TRUE(absl::SimpleAtoi(headers.get_("content-length"), &content_length));
     feedBuffer(content_length);
-    Http::TestHeaderMapImpl continue_headers;
+    Http::TestResponseHeaderMapImpl continue_headers;
     EXPECT_EQ(Http::FilterHeadersStatus::Continue,
               filter_->encode100ContinueHeaders(continue_headers));
     Http::MetadataMap metadata_map{{"metadata", "metadata"}};
@@ -695,7 +695,7 @@ TEST_F(GzipFilterTest, AcceptanceTransferEncodingGzip) {
 // Content-Encoding: upstream response is already encoded.
 TEST_F(GzipFilterTest, ContentEncodingAlreadyEncoded) {
   doRequest({{":method", "get"}, {"accept-encoding", "gzip"}}, true);
-  Http::TestHeaderMapImpl response_headers{
+  Http::TestResponseHeaderMapImpl response_headers{
       {":method", "get"}, {"content-length", "256"}, {"content-encoding", "deflate, gzip"}};
   feedBuffer(256);
   EXPECT_EQ(Http::FilterHeadersStatus::Continue, filter_->encodeHeaders(response_headers, false));

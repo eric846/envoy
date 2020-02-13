@@ -109,7 +109,7 @@ public:
     result = upstream_request_->waitForEndStream(*dispatcher_);
     RELEASE_ASSERT(result, result.message());
 
-    upstream_request_->encodeHeaders(Http::TestHeaderMapImpl{{":status", "200"}}, false);
+    upstream_request_->encodeHeaders(Http::TestResponseHeaderMapImpl{{":status", "200"}}, false);
     upstream_request_->encodeData(response_size_, true);
     response_->waitForEndStream();
 

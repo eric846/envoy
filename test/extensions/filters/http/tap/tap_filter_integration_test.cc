@@ -127,20 +127,20 @@ public:
     return traces;
   }
 
-  const Http::TestHeaderMapImpl request_headers_tap_{{":method", "GET"},
+  const Http::TestRequestHeaderMapImpl request_headers_tap_{{":method", "GET"},
                                                      {":path", "/"},
                                                      {":scheme", "http"},
                                                      {":authority", "host"},
                                                      {"foo", "bar"}};
 
-  const Http::TestHeaderMapImpl request_headers_no_tap_{
+  const Http::TestRequestHeaderMapImpl request_headers_no_tap_{
       {":method", "GET"}, {":path", "/"}, {":scheme", "http"}, {":authority", "host"}};
 
   const Http::TestHeaderMapImpl request_trailers_{{"foo_trailer", "bar"}};
 
-  const Http::TestHeaderMapImpl response_headers_tap_{{":status", "200"}, {"bar", "baz"}};
+  const Http::TestResponseHeaderMapImpl response_headers_tap_{{":status", "200"}, {"bar", "baz"}};
 
-  const Http::TestHeaderMapImpl response_headers_no_tap_{{":status", "200"}};
+  const Http::TestResponseHeaderMapImpl response_headers_no_tap_{{":status", "200"}};
 
   const Http::TestHeaderMapImpl response_trailers_{{"bar_trailer", "baz"}};
 

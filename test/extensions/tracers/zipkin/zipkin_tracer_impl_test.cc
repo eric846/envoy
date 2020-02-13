@@ -109,7 +109,7 @@ public:
     second_span->finishSpan();
 
     Http::MessagePtr msg(new Http::ResponseMessageImpl(
-        Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "202"}}}));
+        Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "202"}}}));
 
     callback->onSuccess(std::move(msg));
 
@@ -130,7 +130,7 @@ public:
   uint64_t generateRandom64() { return Util::generateRandom64(time_source_); }
 
   const std::string operation_name_{"test"};
-  Http::TestHeaderMapImpl request_headers_{
+  Http::TestRequestHeaderMapImpl request_headers_{
       {":authority", "api.lyft.com"}, {":path", "/"}, {":method", "GET"}, {"x-request-id", "foo"}};
   SystemTime start_time_;
   StreamInfo::MockStreamInfo stream_info_;
@@ -233,7 +233,7 @@ TEST_F(ZipkinDriverTest, FlushOneSpanReportFailure) {
   span->finishSpan();
 
   Http::MessagePtr msg(new Http::ResponseMessageImpl(
-      Http::HeaderMapPtr{new Http::TestHeaderMapImpl{{":status", "404"}}}));
+      Http::HeaderMapPtr{new Http::TestResponseHeaderMapImpl{{":status", "404"}}}));
 
   // AsyncClient can fail with valid HTTP headers
   callback->onSuccess(std::move(msg));

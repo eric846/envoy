@@ -52,8 +52,8 @@ public:
     ON_CALL(*file_, write(_)).WillByDefault(SaveArg<0>(&output_));
   }
 
-  Http::TestHeaderMapImpl request_headers_{{":method", "GET"}, {":path", "/"}};
-  Http::TestHeaderMapImpl response_headers_;
+  Http::TestRequestHeaderMapImpl request_headers_{{":method", "GET"}, {":path", "/"}};
+  Http::TestResponseHeaderMapImpl response_headers_;
   Http::TestHeaderMapImpl response_trailers_;
   TestStreamInfo stream_info_;
   std::shared_ptr<MockAccessLogFile> file_;
@@ -639,8 +639,8 @@ duration_filter:
   envoy::config::accesslog::v3::AccessLogFilter config;
   TestUtility::loadFromYaml(filter_yaml, config);
   DurationFilter filter(config.duration_filter(), runtime);
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"}, {":path", "/"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"}, {":path", "/"}};
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
   TestStreamInfo stream_info;
 
@@ -677,8 +677,8 @@ status_code_filter:
   TestUtility::loadFromYaml(filter_yaml, config);
   StatusCodeFilter filter(config.status_code_filter(), runtime);
 
-  Http::TestHeaderMapImpl request_headers{{":method", "GET"}, {":path", "/"}};
-  Http::TestHeaderMapImpl response_headers;
+  Http::TestRequestHeaderMapImpl request_headers{{":method", "GET"}, {":path", "/"}};
+  Http::TestResponseHeaderMapImpl response_headers;
   Http::TestHeaderMapImpl response_trailers;
   TestStreamInfo info;
 

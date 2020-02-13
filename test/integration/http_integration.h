@@ -22,17 +22,17 @@ public:
                          Upstream::HostDescriptionConstSharedPtr host_description,
                          Http::CodecClient::Type type);
 
-  IntegrationStreamDecoderPtr makeHeaderOnlyRequest(const Http::HeaderMap& headers);
-  IntegrationStreamDecoderPtr makeRequestWithBody(const Http::HeaderMap& headers,
+  IntegrationStreamDecoderPtr makeHeaderOnlyRequest(const Http::RequestHeaderMap& headers);
+  IntegrationStreamDecoderPtr makeRequestWithBody(const Http::RequestHeaderMap& headers,
                                                   uint64_t body_size);
-  IntegrationStreamDecoderPtr makeRequestWithBody(const Http::HeaderMap& headers,
+  IntegrationStreamDecoderPtr makeRequestWithBody(const Http::RequestHeaderMap& headers,
                                                   const std::string& body);
   bool sawGoAway() const { return saw_goaway_; }
   bool connected() const { return connected_; }
   void sendData(Http::RequestEncoder& encoder, absl::string_view data, bool end_stream);
   void sendData(Http::RequestEncoder& encoder, Buffer::Instance& data, bool end_stream);
   void sendData(Http::RequestEncoder& encoder, uint64_t size, bool end_stream);
-  void sendTrailers(Http::RequestEncoder& encoder, const Http::HeaderMap& trailers);
+  void sendTrailers(Http::RequestEncoder& encoder, const Http::RequestTrailerMap& trailers);
   void sendReset(Http::RequestEncoder& encoder);
   // Intentionally makes a copy of metadata_map.
   void sendMetadata(Http::RequestEncoder& encoder, Http::MetadataMap metadata_map);
@@ -194,7 +194,7 @@ protected:
   void testRouterUpstreamResponseBeforeRequestComplete();
 
   void testTwoRequests(bool force_network_backup = false);
-  void testLargeHeaders(Http::TestHeaderMapImpl request_headers,
+  void testLargeHeaders(Http::TestRequestHeaderMapImpl request_headers,
                         Http::TestHeaderMapImpl request_trailers, uint32_t size, uint32_t max_size);
   void testLargeRequestHeaders(uint32_t size, uint32_t count, uint32_t max_size = 60,
                                uint32_t max_count = 100);
@@ -233,8 +233,8 @@ protected:
   // A pointer to the request encoder, if used.
   Http::RequestEncoder* request_encoder_{nullptr};
   // The response headers sent by sendRequestAndWaitForResponse() by default.
-  Http::TestHeaderMapImpl default_response_headers_{{":status", "200"}};
-  Http::TestHeaderMapImpl default_request_headers_{
+  Http::TestResponseHeaderMapImpl default_response_headers_{{":status", "200"}};
+  Http::TestRequestHeaderMapImpl default_request_headers_{
       {":method", "GET"}, {":path", "/test/long/url"}, {":scheme", "http"}, {":authority", "host"}};
   // The codec type for the client-to-Envoy connection
   Http::CodecClient::Type downstream_protocol_{Http::CodecClient::Type::HTTP1};
