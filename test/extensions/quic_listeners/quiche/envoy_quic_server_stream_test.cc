@@ -31,7 +31,7 @@ public:
       : api_(Api::createApiForTest()), dispatcher_(api_->allocateDispatcher()),
         connection_helper_(*dispatcher_),
         alarm_factory_(*dispatcher_, *connection_helper_.GetClock()), quic_version_([]() {
-          SetQuicReloadableFlag(quic_enable_version_q099, GetParam());
+          SetQuicReloadableFlag(quic_enable_version_t099, GetParam());
           return quic::CurrentSupportedVersions()[0];
         }()),
         listener_stats_({ALL_LISTENER_STATS(POOL_COUNTER(listener_config_.listenerScope()),
@@ -50,9 +50,10 @@ public:
     quic_stream_->setRequestDecoder(stream_decoder_);
     quic_stream_->addCallbacks(stream_callbacks_);
     quic_session_.ActivateStream(std::unique_ptr<EnvoyQuicServerStream>(quic_stream_));
-    EXPECT_CALL(quic_session_, WritevData(_, _, _, _, _))
-        .WillRepeatedly(Invoke([](quic::QuicStream*, quic::QuicStreamId, size_t write_length,
-                                  quic::QuicStreamOffset, quic::StreamSendingState state) {
+    EXPECT_CALL(quic_session_, WritevData(_, _, _, _, _, _))
+        .WillRepeatedly(Invoke([](quic::QuicStreamId, size_t write_length, quic::QuicStreamOffset,
+                                  quic::StreamSendingState state, bool,
+                                  quiche::QuicheOptional<quic::EncryptionLevel>) {
           return quic::QuicConsumedData{write_length, state != quic::NO_FIN};
         }));
     EXPECT_CALL(writer_, WritePacket(_, _, _, _, _))
@@ -141,7 +142,7 @@ protected:
   Http::MockRequestDecoder stream_decoder_;
   Http::MockStreamCallbacks stream_callbacks_;
   quic::QuicHeaderList request_headers_;
-  Http::TestHeaderMapImpl response_headers_;
+  Http::TestResponseHeaderMapImpl response_headers_;
   quic::QuicHeaderList trailers_;
   std::string host_{"www.abc.com"};
   std::string request_body_{"Hello world"};
